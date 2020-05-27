@@ -89,6 +89,17 @@ int shell_launch(char** args){
 	}
 	return 1;
 }
+int shell_help(char** args){};
+int shell_cd(char** args){};
+int shell_exit(char** args){};
+
+char* builtin_commands[]={"help","cd", "exit"};
+
+int (*builtin_function[]) (char** )={&shell_help,&shell_cd,&shell_exit};
+
+int shell_num_builtins(){
+	return sizeof(builtin_commands)/ sizeof(char *);
+}
 
 void shell_loop(void){
 
@@ -101,7 +112,7 @@ void shell_loop(void){
 		printf(line);
 
 		args=shell_split_line(line);
-
+		//fprintf(sizeof(char*));
 		//status=shell_execute(args);
 
 		//free(line);
