@@ -89,9 +89,9 @@ int shell_launch(char** args){
 	}
 	return 1;
 }
-int shell_help(char** args){};
-int shell_cd(char** args){};
-int shell_exit(char** args){};
+int shell_help(char** args);
+int shell_cd(char** args);
+int shell_exit(char** args);
 
 char* builtin_commands[]={"help","cd", "exit"};
 
@@ -99,6 +99,19 @@ int (*builtin_function[]) (char** )={&shell_help,&shell_cd,&shell_exit};
 
 int shell_num_builtins(){
 	return sizeof(builtin_commands)/ sizeof(char *);
+}
+
+int shell_cd(char** args){
+	if(args[1] == NULL){
+		fprintf(stderr,"shell:expected argument to \" cd\"n");
+	}else{
+		if(chdir(args[1])!=0){
+			perror("shell");
+		}
+
+	}
+	return 1;
+
 }
 
 void shell_loop(void){
