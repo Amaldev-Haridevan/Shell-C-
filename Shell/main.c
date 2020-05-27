@@ -7,6 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
+#include <string.h>
+
 #define SHELL_BUF_SIZE 1024
 #define SHELL_DELIM "\t\n\r\a"
 
@@ -103,7 +106,7 @@ int shell_num_builtins(){
 
 int shell_cd(char** args){
 	if(args[1] == NULL){
-		fprintf(stderr,"shell:expected argument to \" cd\"n");
+		fprintf(stderr,"shell:expected argument to \" cd\"\n");
 	}else{
 		if(chdir(args[1])!=0){
 			perror("shell");
@@ -114,6 +117,38 @@ int shell_cd(char** args){
 
 }
 
+int shell_help(char** args){
+	int i;
+	printf("amaldevhari's shell \n");
+	printf("Type program names and arguments, and hit enter \n");
+	printf("The following commands are builtin: \n");
+	for (i=0; i< shell_num_builtins;i++){
+		printf(" %s\n",builtin_commands[i]);
+
+	}
+	printf("Use the man command for information on other programs.\n");
+
+	return 1;
+}
+
+int shell_exit(char** args){
+	return 0;
+}
+
+int shell_execute(char** args){
+	int i;
+
+	if(args[0] == NULL){
+		return 1;
+	}
+	for(i=0;i<shell_num_builtins();i++){
+		if( strcmp(args[0], builtin_commands[i]) == 0){
+			return (*builtin_function[i](args));
+		}
+	}
+	return shell_launch(args);
+}
+
 void shell_loop(void){
 
 	char *line;
@@ -122,15 +157,16 @@ void shell_loop(void){
 	do{
 		printf("> ");
 		line=shell_read_line();
-		printf(line);
+
 
 		args=shell_split_line(line);
-		//fprintf(sizeof(char*));
-		//status=shell_execute(args);
 
-		//free(line);
+		status=shell_execute(args);
 
-		//free(args);
+
+		free(line);
+
+		free(args);
 
 	}
 	while(status);
