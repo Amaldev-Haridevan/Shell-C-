@@ -122,7 +122,7 @@ int shell_help(char** args){
 	printf("amaldevhari's shell \n");
 	printf("Type program names and arguments, and hit enter \n");
 	printf("The following commands are builtin: \n");
-	for (i=0; i< shell_num_builtins;i++){
+	for (i=0; i< shell_num_builtins();i++){
 		printf(" %s\n",builtin_commands[i]);
 
 	}
@@ -143,7 +143,7 @@ int shell_execute(char** args){
 	}
 	for(i=0;i<shell_num_builtins();i++){
 		if( strcmp(args[0], builtin_commands[i]) == 0){
-			return (*builtin_function[i](args));
+			return (builtin_function[i](args));
 		}
 	}
 	return shell_launch(args);
