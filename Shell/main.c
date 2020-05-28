@@ -12,16 +12,31 @@
 #include <unistd.h>
 
 #define SHELL_BUF_SIZE 1024
+/*******************************************************************************************************
+ * SHELL_BUF_SIZE defines the buffer size for the characters pulled from stdin
+ ********************************************************************************************************/
 #define SHELL_DELIM " \t\n\r\a"
+/*******************************************************************************************************
+ *  SHELL_DELIM is the string special characters that separate a meaningful token for the shell, everything
+ *  separated by the special characters in SHELL_dELIM will be considered as arguments, with the first one
+ *  being the command.
+ *  The special characters are blank space, tab , nextline , carriage return , alert
 
+*******************************************************************************************************/
 char* shell_read_line(void){
 	int buf_size=SHELL_BUF_SIZE;
 	int position = 0;
 	char *buffer=malloc(sizeof(char)*buf_size);
+	/*******************************************************************************************************
+	 * malloc assigns a memory section witht the specified bytes and returns a void pointer pointing to it.
+	 ********************************************************************************************************/
 	int c;
 	if(!buffer){
 		fprintf(stderr,"shell: allocation error \n");
 		exit(EXIT_FAILURE);
+		/*******************************************************************************************************
+		 * if maolloc() fails send error message
+		 ********************************************************************************************************/
 	}
 	while(1){
 		c=getchar();
@@ -47,6 +62,10 @@ char* shell_read_line(void){
 
 
 };
+/*******************************************************************************************************
+ * shell_read_line(): This function pulls out characters from stdin and constructs a line with its end denoted
+ * by EOF.
+ ********************************************************************************************************/
 char** shell_split_line(char* line){
 	int buf_size= SHELL_BUF_SIZE, position=0;
 	char** tokens = malloc(sizeof(char*)* buf_size);
@@ -74,7 +93,11 @@ char** shell_split_line(char* line){
  tokens[position]=NULL;
  return tokens;
 };
-
+/*******************************************************************************************************
+ * shell_split_line(): This function splits the line (array of characters) that was returned by
+ *  shell_read_line(), based on the SHELL_DELIM . strtok() function will split this line into tokens
+ *  using the delimiter SHELL_DELIM.
+ ********************************************************************************************************/
 int shell_launch(char** args){
 	pid_t pid,wpid;
 	int status;
@@ -93,10 +116,37 @@ int shell_launch(char** args){
 	}
 	return 1;
 }
+/*******************************************************************************************************
+ * shell_launch(): This function uses system calls to execute a command if they are not specified
+ *  in the builtin_commands variable.
+ *  pid_t type stores process id, everytime a process is started it is started using the fork() function
+ *  fork() creates a copy of the current running process called child. A process id value of 0 is passed
+ *  to this child and a process id of the child process is given to the original.
+ *
+ *  The if statements:  the if statements are concurrently executed in both parent and child, so
+ *  the first two if statements are meant for child and the last one is meant for parent.
+ *
+ *  The first if statement is executed by the child, since only child has 0 pid
+ *  if the first logical condition is satisfied, using execvp() function the program to launch  and
+ *   the argument for it is specified. First argument is the program. execvp() looks for this program
+ *   in the $path variable of the system and executes it using the arguments provided. execvp() returns 0
+ *   on successful execution. If -1 is returned it indicates failure.
+ *
+ *   the second if statement is only executed if the fork() process failed , fork() returns a negative pid
+ *   if failed;
+ *
+ *   the else statement can only be executed by the parent and it waits for the child process to be finished
+ *   or killed. WIFEXITED checks if the process was finished, WIFSIGNALLED checks if the process was signalled
+ *   to be killed. Both returns 0 if the process is still running.
+ *
+ ********************************************************************************************************/
 int shell_help(char** args);
 int shell_cd(char** args);
 int shell_exit(char** args);
 
+/*******************************************************************************************************
+ * Function prototypes for builtin commands
+ ********************************************************************************************************/
 char* builtin_commands[]={"help","cd", "exit"};
 
 int (*builtin_function[]) (char** )={&shell_help,&shell_cd,&shell_exit};
@@ -110,6 +160,9 @@ int shell_cd(char** args){
 		fprintf(stderr,"shell:expected argument to \" cd\"\n");
 	}else{
 		if(chdir(args[1])!=0){
+			/*******************************************************************************************************
+			 * chdir() changes the current directory
+			 ********************************************************************************************************/
 			perror("shell");
 		}
 
@@ -149,7 +202,16 @@ int shell_execute(char** args){
 	}
 	return shell_launch(args);
 }
-
+/*******************************************************************************************************
+ * shell_execute(): this fucntion signals the required processes depending on the tokens
+ *
+ * if the token is NULL this function will return
+ *
+ * following  the first token( command) is cross checked with the builtin functions to see if that is that
+ * the user asked for.
+ *
+ * if not then the shell_launch() function is called;
+ ********************************************************************************************************/
 void shell_loop(void){
 
 	char *line;
@@ -159,25 +221,42 @@ void shell_loop(void){
 		printf("> ");
 		line=shell_read_line();
 
-
+		/*******************************************************************************************************
+		 * reads line.
+		 ********************************************************************************************************/
 		args=shell_split_line(line);
-
+		/*******************************************************************************************************
+		 * splits line into tokens
+		 ********************************************************************************************************/
 
 
 		status=shell_execute(args);
-
+		/*******************************************************************************************************
+		 * executes the tokens
+		 ********************************************************************************************************/
 
 		free(line);
 
 		free(args);
-
+		/*******************************************************************************************************
+		 * frees the memory
+		 ********************************************************************************************************/
 	}
 	while(status);
 };
+/*******************************************************************************************************
+ * loop of the shell, only the builtin command execution shell_exit() return 0 as status.
+ * The basic shell starts taking inputs, parse it into tokens and then executes them.
 
+ ********************************************************************************************************/
 int main(int argc, char **argv ){
 
-	//start loop (shell)
+	/*******************************************************************************************************
+	 START
+	 ********************************************************************************************************/
 	shell_loop();
 	return EXIT_SUCCESS;
+	/*******************************************************************************************************
+	 * EXIT MAIN
+	 ********************************************************************************************************/
 }
