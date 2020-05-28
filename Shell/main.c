@@ -218,7 +218,13 @@ void shell_loop(void){
 	char **args;
 	int status;
 	do{
-		printf("> ");
+
+		char * user=getenv("USER");
+		char * print_word;
+		print_word= malloc(1+strlen(user) + strlen("> "));
+		strcpy(print_word,user);
+		strcat(print_word,":$ ");
+		printf("%s",print_word);
 		line=shell_read_line();
 
 		/*******************************************************************************************************
