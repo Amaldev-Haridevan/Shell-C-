@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 #define SHELL_BUF_SIZE 1024
-#define SHELL_DELIM "\t\n\r\a"
+#define SHELL_DELIM " \t\n\r\a"
 
 char* shell_read_line(void){
 	int buf_size=SHELL_BUF_SIZE;
