@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <unistd.h>
 
 #define SHELL_BUF_SIZE 1024
 #define SHELL_DELIM "\t\n\r\a"
@@ -79,7 +80,7 @@ int shell_launch(char** args){
 	int status;
 	pid=fork();
 	if(pid==0){
-		if(execv(args[0],args ) == -1){
+		if(execvp(args[0],args ) == -1){
 			perror("shell");
 		}
 		exit(EXIT_FAILURE);
@@ -143,7 +144,7 @@ int shell_execute(char** args){
 	}
 	for(i=0;i<shell_num_builtins();i++){
 		if( strcmp(args[0], builtin_commands[i]) == 0){
-			return (builtin_function[i](args));
+			return (*builtin_function[i])(args);
 		}
 	}
 	return shell_launch(args);
@@ -160,6 +161,8 @@ void shell_loop(void){
 
 
 		args=shell_split_line(line);
+
+
 
 		status=shell_execute(args);
 
