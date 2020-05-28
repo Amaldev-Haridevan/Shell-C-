@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version =1.0
+Type=Application
+Terminal=true
+Exec=/home/...../Shell-C-/Shell/shell
+Name=shell
+Comment=shell
+Icon= /home/...../Shell-c-/Shell/shell.png 
+
